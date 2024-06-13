@@ -18,4 +18,4 @@ Phylogenetics is a very deep and computation heavy field and covering the basics
 
 Material is based off of these resources with some modifications:
 
- * [http://www.iqtree.org/workshop/sydney2022](IQTREE workshop)
+ * (http://www.iqtree.org/workshop/sydney2022)[IQTREE workshop]
