@@ -82,6 +82,8 @@ Today we will use IQTREE and ggtree to help us understand the question of where 
 
 -   Will open file directly to take a look, but will not give you a sense of alignment
 
+-   There exists a `read.fasta` function from treeio if you just want a brief summary of the alignment. It relies on a package called `Biostrings`, so you will need to have that installed as well.
+
 ```{r}
 # function from treeio
 fa <- read.fasta(file.path(PATH,"data/turtle.fa"))
@@ -242,7 +244,7 @@ p %<+% tip_df + geom_tiplab() + geom_tippoint(aes(color=group)) + xlim(0,0.4)
 More is described in the [ggtree book](https://yulab-smu.top/treedata-book/chapter7.html), but the `%<+%` operator allows for attaching annotation data to a `ggtree` object, either with a dataframe of tip data or a dataframe of internal node data, or both. The main thing is to have labels for tips or nodes match up. You can also directly modify the `treedata` object if desired.
 
 ```{r modifytree}
-left_join(treeinit, df)
+left_join(treeinit, tip_df)
 ```
 
 So, based on this analysis, where would you place turtles?
@@ -276,7 +278,9 @@ There are similar other verbs as well:
 
 We go back to terminal temporarily to run our 2nd batch script, `02_partition.sh`. While it runs we will go through more useful components of `ggtree`.
 
-## Labeling clades
+## More ggtree things
+
+### Labeling Clades
 
 Often you will want to label clades as well. This is what `geom_cladelabel` is for.
 
@@ -295,6 +299,28 @@ If you want the box to cover all of the text, you will want to provide the `exte
 ```{r extend}
 ggtree(treeinit) + geom_tiplab() + geom_hilight(node=22, fill="gold", extend=5)
 ```
+
+### Plotting multiple sequence alignment next to tree
+
+`msaplot` is a nice function that will plot your multiple sequence alignment next to your phylogeny. It takes as base arguments the `ggtree` plot and the path to the multiple sequence alignment. You can set which slice of the alignment to display with the `window` argument as well. So if we run it here:
+
+```{r msaplot}
+# offset sets an offset of the alignment to the tree. Without it the msa covers the tip labels
+# if we do that we need to set a new xlim
+msaplot(plotinit, file.path(PATH, "data/turtle.fa"),offset=.3) + xlim(0,1)
+```
+
+Using some regions from the `turtle.nex` file:
+
+```{r msaplot_window}
+msaplot(plotinit, file.path(PATH, "data/turtle.fa"),offset=.2, window=c(2041,2772)) + xlim(0,0.8)
+```
+
+```{r msaplot_window2}
+msaplot(plotinit, file.path(PATH, "data/turtle.fa"),offset=.2, window=c(15445,15963)) + xlim(0,0.8)
+```
+
+What can we say about our alignment and tree?
 
 ## Analyzing our partitioned tree
 
@@ -320,10 +346,10 @@ plotpart + plotinit
 
 ## Topology test (and finding best partition)
 
-Run `03_bestscheme_topotest.sh`:
+Run `03_topo.sh` in the same way as we did before:
 
 ```         
-sbatch scripts/03_bestscheme_topotest.sh
+sbatch scripts/03_topo.sh
 ```
 
 ## Review and modifications
