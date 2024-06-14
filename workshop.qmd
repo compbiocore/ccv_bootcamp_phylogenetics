@@ -1,0 +1,61 @@
+---
+title: "CCV Bootcamp Phylogenetics 2024"
+author: "August Guang"
+format: revealjs
+editor: visual
+---
+
+## CCV Bootcamp 2024: Phylogenetics
+
+## Overview
+
+## Running singularity containers
+
+## How to read a phylogenetic tree
+
+## IQTREE2 Basics
+
+## Placing Turtle Relative to Crocodiles and Birds
+
+![](images/turtle.png)
+
+```{r}
+library(ape)
+library(ggtree)
+library(treeio)
+```
+
+### View alignment
+
+```{r}
+fa <- read.fasta("data/turtle.fa")
+fa
+```
+
+## Inferring an initial phylogeny
+
+We are going to run the following command:
+
+``` bash
+iqtree2 -s turtle.fa -B 1000 -T AUTO
+```
+
+With Apptainer (fka Singularity), you will need to make sure to run it as
+
+`singularity exec iqtree2 -s turtle.fa -B 1000 -T AUTO`
+
+### Options explained:
+
+-   `-s turtle.fa` indicates input alignment is `turtle.fa`
+
+-   `-B 1000` specifies 1000 replicates with ultrafast bootstrap \[Minh et al., 2013\](https://doi.org/10.1093/molbev/mst024)
+
+-   `-T AUTO` determines best number of CPU cores to speed up analysis
+
+### What will happen:
+
+1.  Select best-fit model using ModelFinder (Kalyaanamoorthy et al., 2017)\[https://doi.org/10.1038/nmeth.4285\]
+2.  Reconstruct ML tree using IQ-TREE search algorithm (Nguyen et al., 2015).
+3.  Assess branch supports with ultrafast bootstrap (UFBoot) algorithm (Minh et al., 2013)
+
+Original Felsenstein nonparametric bootstrap can be run with `-b` option instead.
