@@ -1,0 +1,67 @@
+---
+title: "workshop"
+format: html
+editor: visual
+---
+
+## Setup
+
+```{r setup, include=FALSE}
+library(ggtree)
+library(treeio)
+library(ape)
+PATH<-"~/ccv_bootcamp_phylogenetics"
+```
+
+## Looking at `turtle.fa.iqtree`:
+
+Take a look a `turtle.fa.iqtree`. A few different ways to open on OOD:
+
+-   Go to Files tab at top of OOD, navigate to relevant directory, and click on file to get it as text file
+
+-   In Terminal tab, can look at using `cat $PATH/turtle.fa.iqtree | less` then space to page through
+
+-   In our RStudio session, open using File tab at top and typing path in
+
+## Understanding initial iqtree run
+
+```{r, treeinit}
+treeinit <- read.iqtree(file.path(PATH,"turtle.fa.treefile"))
+treeinit
+```
+
+Components of `treeinit` object:
+
+-   `@phylo`: phylogenetic tree as represented in ape. Has tip labels, node labels
+
+-   `@data`: metadata associated with tree
+
+-   There are also other components (you can look for yourself with `attribute(treeinit)` or `str(treeinit`) but generally not necessary to know or have
+
+## ggtree, treeio
+
+-   ggtree is an R package in Bioconductor that extends ggplot2 for visualizing and annotating phylogenetic trees with covariates and associated data
+
+-   treeio is an R package in Bioconductor that loads in common phylogenetic tree formats and associated data
+
+    -   `read.iqtree` is command specifically for reading in trees generated from IQTREE. There is also `read.raxml`, `read.beast`, `read.phylip`, etc.
+
+## Visualizing our first tree
+
+Now that we have our initial tree loaded, we can plot it with `ggtree`. Syntax is very similar to in `ggplot2`, it follows the grammar of graphics structure with a `ggplot()` and multiple `geom` functions as well, the most basic of which is `geom_tree()`:
+
+```{r initviz}
+ggplot(treeinit) + geom_tree()
+```
+
+For convenience there is a function called `ggtree(x)` which will automatically run `ggplot(x) + geom_tree() + theme_tree()`: (`theme_tree()` sets a black&white theme for the tree as opposed to `ggplot2`'s default theme of grey grid)
+
+```{r initviz_ggtree}
+ggtree(treeinit)
+```
+
+Other `geoms` that are relevant are:
+
+## For more information:
+
+-   **Data Integration, Manipulation, and Visualization of Phlyogenetic Trees**: <https://yulab-smu.top/treedata-book/>
