@@ -5,13 +5,49 @@ format: revealjs
 editor: visual
 ---
 
-## CCV Bootcamp 2024: Phylogenetics
+## Overview
+
+In this brief workshop we will cover:
+
+-   How to best make use of Open OnDemand and OSCAR for computationally complex work and reproducibility
+
+-   Some good practices for keeping track of this kind of work
+
+-   How to run and allocate resources for IQ-TREE2 to infer phylogenies
+
+-   How to use ggtree2+tidytree to visualize phylogenetic trees and do some basic tree manipulation
 
 ## Overview
 
-## Running singularity containers
+This will *not* cover:
 
-## How to read a phylogenetic tree
+-   Phylogenetic theory, models, and statistical tests
+
+-   Assembly, alignment, time tree dating, other components in phylogenetic pipelines
+
+-   Other flavors of phylogenetic inference programs like raxml, mrbayes, etc
+
+## Environment and repo setup
+
+You **will** need an Oscar account already to be able to follow along, as we will be using Open OnDemand. If you don't have one, it is possible to either:
+
+-   Download the Docker image and run the scripts + access RStudio within the container on your local machine
+
+-   Download all necessary programs, run the scripts + access RStudio on your local machine
+
+But we don't recommend it. Also if you're going to do any actual phylogenetics work you will need a computing cluster anyway.
+
+## Environment and repo setup
+
+Navigate to:
+
+```         
+http://ood.ccv.brown.edu
+```
+
+```         
+apptainer pull bootcamp.sif docker://ghcr.io/compbiocore/ccv_bootcamp_phylogenetics:latest
+```
 
 ## IQTREE2 Basics
 
@@ -59,3 +95,11 @@ With Apptainer (fka Singularity), you will need to make sure to run it as
 3.  Assess branch supports with ultrafast bootstrap (UFBoot) algorithm (Minh et al., 2013)
 
 Original Felsenstein nonparametric bootstrap can be run with `-b` option instead.
+
+## Questions for initial tree
+
+-   Look at report file `turtle.fa.iqtree` using `cat turtle.fa.iqtree | less`
+
+-   What is the best-fit model name?
+
+-   What are the AIC/AICc/BIC scores of this model and tree?
