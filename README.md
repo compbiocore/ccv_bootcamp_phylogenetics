@@ -1,6 +1,8 @@
 # CCV Bootcamp 2024: Phylogenetics
 
-Phylogenetics workshop for CCV Bootcamp 2024
+August Guang
+
+---
 
 This 1.5hr workshop will cover:
 
