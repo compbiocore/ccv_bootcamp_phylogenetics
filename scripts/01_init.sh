@@ -5,7 +5,8 @@
 #SBATCH -e logs/iqtree_init-%J.err
 #SBATCH -o logs/iqtree_init-%J.out
 
-WORKDIR=/oscar/data/datasci/aguang/ccv_bootcamp_phylogenetics
+#WORKDIR=/users/aguang/ccv_bootcamp_phylogenetics
+WORKDIR=~/ccv_bootcamp_phylogenetics
 
 export SINGULARITY_BINDPATH="${WORKDIR}"
 IMG=${WORKDIR}/metadata/bootcamp.sif
