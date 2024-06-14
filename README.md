@@ -23,9 +23,10 @@ Phylogenetics is a very deep and computation heavy field and covering the basics
 
 All workshop materials are in `workshop.qmd` and can be followed along from there. Scripts to run various flavors of IQTREE2 on Oscar are all in `scripts`. Data for workshop is in `data`.
 
-To reproduce quickly, after cloning run `scripts/00_env.sh`:
+To reproduce quickly, after cloning (`git clone https://github.com/compbiocore/ccv_bootcamp_phylogenetics.git`) run `scripts/00_env.sh`:
 ```
-./scripts/00_env.sh
+cd ccv_bootcamp_phylogenetics/scripts
+./00_env.sh
 ```
 
 This will pull a singularity image to your `metadata` folder. From there you should be able to run all scripts `01_init.sh`, `02_partition.sh`, and `03_topo.sh` on OSCAR:
