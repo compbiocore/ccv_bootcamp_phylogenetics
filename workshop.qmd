@@ -352,6 +352,12 @@ Run `03_topo.sh` in the same way as we did before:
 sbatch scripts/03_topo.sh
 ```
 
+### Questions:
+
+-   What has the lowest log-likelihood from the topology tests?
+
+-   Would you be able to choose a tree based off of the SH, KH or AU tests? Why or why not?
+
 ## Review and modifications
 
 -   We covered repository and data structures for reproducibility and ease of workflow and made use of OOD+containerization
