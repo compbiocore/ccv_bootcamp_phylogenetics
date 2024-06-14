@@ -1,8 +1,8 @@
 ---
-title: "CCV Bootcamp Phylogenetics 2024"
-author: "August Guang"
-format: revealjs
+title: "CCV Bootcamp 2024: Phylogenetics"
+format: html
 editor: visual
+author: "August Guang"
 ---
 
 ## Overview
@@ -17,8 +17,6 @@ In this brief workshop we will cover:
 
 -   How to use ggtree2+tidytree to visualize phylogenetic trees and do some basic tree manipulation
 
-## Overview
-
 This will *not* cover:
 
 -   Phylogenetic theory, models, and statistical tests
@@ -29,15 +27,13 @@ This will *not* cover:
 
 ## Environment and repo setup
 
-You **will** need an Oscar account already to be able to follow along, as we will be using Open OnDemand. If you don't have one, it is possible to either:
+This workshop requires a fair amount of setup, as we will be toggling between the terminal window and RStudio on Open OnDemand as well as using an Apptainer container that has all the software we need. You **will** need an Oscar account already to be able to follow along, as we will be using Open OnDemand. If you don't have one, it is possible to either:
 
 -   Download the Docker image and run the scripts + access RStudio within the container on your local machine
 
--   Download all necessary programs, run the scripts + access RStudio on your local machine
+-   Download programs and packages on your own, run the scripts + access RStudio on your local machine
 
-But we don't recommend it. Also if you're going to do any actual phylogenetics work you will need a computing cluster anyway.
-
-## Environment and repo setup
+But we don't recommend it.
 
 Navigate to:
 
@@ -45,42 +41,83 @@ Navigate to:
 http://ood.ccv.brown.edu
 ```
 
+Once you are in, open up a terminal window. From there, you will want to clone the `ccv_bootcamp_phylogenetics` repository into your home directory (the default one when you open terminal):
+
 ```         
-apptainer pull bootcamp.sif docker://ghcr.io/compbiocore/ccv_bootcamp_phylogenetics:latest
+git clone https://github.com/compbiocore/ccv_bootcamp_phylogenetics.git
 ```
 
-## IQTREE2 Basics
+Next steps will be to go into the repo, go into the scripts directory, and run `00_env.sh` to pull the Singularity image we will be using and set up the environment:
+
+```         
+cd ccv_bootcamp_phylogenetics/scripts
+./00_env.sh
+```
+
+Once that is done, we will be setting up the last piece. Go to the OOD apps, click on RStudio on Singularity, and put in the following options:
+
+![](images/rstudio.png)
+
+Go to the bottom and hit the Launch button, and wait for your instance to spin up!
+
+## Setup
+
+```{r setup, include=FALSE}
+library(ggtree)
+library(treeio)
+library(ape)
+library(tidyverse)
+PATH<-"~/ccv_bootcamp_phylogenetics"
+```
 
 ## Placing Turtle Relative to Crocodiles and Birds
 
-![](images/turtle.png)
+Today we will use IQTREE and ggtree to help us understand the question of where turtles should be placed on the phylogeny relative to crocodiles and birds. Data is already in the repository and is a subset of the dataset used to answer this question in [Chiari et al., 2012](https://doi.org/10.1186/1741-7007-10-65).
+
+![](images/turtle-01.png)
+
+### Quick view of data
+
+-   Recommend using a program like Jalviewer or Aliview to view (not covered here)
+
+-   Will open file directly to take a look, but will not give you a sense of alignment
 
 ```{r}
-library(ape)
-library(ggtree)
-library(treeio)
-```
-
-### View alignment
-
-```{r}
-fa <- read.fasta("data/turtle.fa")
+# function from treeio
+fa <- read.fasta(file.path(PATH,"data/turtle.fa"))
 fa
 ```
 
 ## Inferring an initial phylogeny
 
-We are going to run the following command:
+All scripts we will be running today are in the `ccv_bootcamp_phylogenetics/scripts` folder, as you may have already seen. They are organized into
 
-``` bash
-iqtree2 -s turtle.fa -B 1000 -T AUTO
+```         
+00_env.sh
+01_init.sh
+02_partition.sh
+03_topo.sh
 ```
 
-With Apptainer (fka Singularity), you will need to make sure to run it as
+This represents the order in which the scripts should be run. We've already run `00_env.sh` to set up the environment. The other 3 scripts all are batch scripts containing different `iqtree2` commands, and we'll be going over them with each one.
 
-`singularity exec iqtree2 -s turtle.fa -B 1000 -T AUTO`
+We are going to start by running `01_init.sh`. On Oscar as you would run the following command:
 
-### Options explained:
+``` bash
+sbatch 01_init.sh
+```
+
+This will run
+
+```         
+singularity exec ${IMG} iqtree2 -s ${WORKDIR}/data/turtle.fa -B 1000 -T AUTO -pre ${WORKDIR}/results/turtle
+```
+
+with data inputs, outputs, singularity image, and various other options as described below:
+
+### Lines and options explained:
+
+-   `WORKDIR=/users/aguang/ccv_bootcamp_phylogenetics` sets up a global path as our working directory so we can quickly reference it.
 
 -   `-s turtle.fa` indicates input alignment is `turtle.fa`
 
@@ -103,3 +140,208 @@ Original Felsenstein nonparametric bootstrap can be run with `-b` option instead
 -   What is the best-fit model name?
 
 -   What are the AIC/AICc/BIC scores of this model and tree?
+
+## Looking at `turtle.iqtree`:
+
+Take a look a `turtle.iqtree`. A few different ways to open on OOD:
+
+-   Go to Files tab at top of OOD, navigate to relevant directory, and click on file to get it as text file
+
+-   In Terminal tab, can look at using `cat $PATH/turtle.fa.iqtree | less` then space to page through
+
+-   In our RStudio session, open using File tab at top, clicking `ccv_bootcamp_phylogenetics` folder, `results` folder, and finally `turtle.iqtree`
+
+## Understanding initial iqtree run
+
+```{r, treeinit}
+treeinit <- read.iqtree(file.path(PATH,"results/turtle.treefile"))
+treeinit
+```
+
+Components of `treeinit` object:
+
+-   `@phylo`: phylogenetic tree as represented in ape. Has tip labels, node labels
+
+-   `@data`: metadata associated with tree
+
+-   There are also other components (you can look for yourself with `attribute(treeinit)` or `str(treeinit`) but generally not necessary to know or have
+
+## ggtree, treeio, tidytree
+
+-   `ggtree` is an R package in Bioconductor that extends ggplot2 for visualizing and annotating phylogenetic trees with covariates and associated data
+
+-   `treeio` is an R package in Bioconductor that loads in common phylogenetic tree formats and associated data
+
+    -   `read.iqtree` is command specifically for reading in trees generated from IQTREE. There is also `read.raxml`, `read.beast`, `read.phylip`, etc.
+
+-   `tidytree` provides tidy interface for exploring tree data
+
+## Visualizing our first tree
+
+Now that we have our initial tree loaded, we can plot it with `ggtree`. Syntax is very similar to in `ggplot2`, it follows the grammar of graphics structure with a `ggplot()` and multiple `geom` functions as well, the most basic of which is `geom_tree()`:
+
+```{r initviz}
+ggplot(treeinit) + geom_tree()
+```
+
+For convenience there is a function called `ggtree(x)` which will automatically run `ggplot(x) + geom_tree() + theme_tree()`: (`theme_tree()` sets a black&white theme for the tree as opposed to `ggplot2`'s default theme of grey grid)
+
+```{r initviz_ggtree}
+ggtree(treeinit)
+```
+
+Other `geoms` that are relevant are:
+
+-   `geom_treescale()`: Adds a scale bar
+
+-   `theme_tree2()`: Adds a scale on x-axis
+
+-   `geom_nodepoint()`: Adds node points
+
+-   `geom_tippoint():` Adds tip points
+
+-   `geom_tiplab():` Adds tip labels
+
+```{r initviz_geoms1}
+p <- ggtree(treeinit)
+
+p + theme_tree2()
+```
+
+```{r initviz_geoms2}
+p + geom_nodepoint()
+```
+
+```{r initviz_geom3}
+p + geom_tippoint()
+```
+
+```{r initviz_geom4}
+p + geom_tiplab()
+```
+
+Once we add on the tip labels, it seems our plot is a bit short to display them. `ggtree` is not as refined as `ggplot2`, you often have to add manual expansions of size to the plot for everything to fit, it won't automagically figure it out for you:
+
+```{r initviz_large}
+p + geom_tiplab() + xlim(0,0.4)
+```
+
+You can figure out what `xlim` should be by running `theme_tree2()` and seeing what the bottom scale already is:
+
+```{r scale}
+p + theme_tree2()
+```
+
+Since the question is, where are turtles placed relative to crocodiles and birds, we want to add some kind of grouping information to show. This can be accomplished by making a dataframe with the relevant groups for each species in the tree, then adding it to the `ggtree` object using the `%<+%` operator:
+
+```{r addgrouping}
+tip_df <- data.frame(label=treeinit@phylo$tip.label, group=c("outgroup","lizard","lizard","snake","bird","bird","crocodile","crocodile","turtle","turtle","turtle","turtle","outgroup","outgroup","outgroup","outgroup"))
+p %<+% tip_df + geom_tiplab() + geom_tippoint(aes(color=group)) + xlim(0,0.4)
+```
+
+More is described in the [ggtree book](https://yulab-smu.top/treedata-book/chapter7.html), but the `%<+%` operator allows for attaching annotation data to a `ggtree` object, either with a dataframe of tip data or a dataframe of internal node data, or both. The main thing is to have labels for tips or nodes match up. You can also directly modify the `treedata` object if desired.
+
+```{r modifytree}
+left_join(treeinit, df)
+```
+
+So, based on this analysis, where would you place turtles?
+
+## Looking at bootstrap of clade
+
+```{r bootstrap}
+plotinit <- ggtree(treeinit) %<+% tip_df + geom_tiplab(aes(color=group), hjust=-.1) + xlim(0,0.4) + geom_tippoint(aes(color=group)) + geom_text(aes(label=UFboot),hjust=-.3, vjust=.9, size=3) + ggtitle("Initial tree")
+plotinit
+```
+
+You can also use the `MRCA` function to find the most recent common ancestor of a set of tips and then view the subsetted clade starting at the MRCA, which can be useful if your tree is very large. The `MRCA` function also comes in handy for many other kinds of annotations and analyses as well.
+
+```{r mrca}
+viewClade(plotinit,MRCA(treeinit,.node1=c("Gallus","alligator","emys_orbicularis")))
+```
+
+There are similar other verbs as well:
+
+-   `parent()` gives parent of a single node.
+
+-   `child()` gives children of a single node.
+
+-   `offspring()` gives all offspring (i.e. children and children of children, etc) of a node
+
+-   `ancestor()` gives all ancestors of a node
+
+-   `sibling()` gives sibling of a node
+
+## Running partitioned analysis
+
+We go back to terminal temporarily to run our 2nd batch script, `02_partition.sh`. While it runs we will go through more useful components of `ggtree`.
+
+## Labeling clades
+
+Often you will want to label clades as well. This is what `geom_cladelabel` is for.
+
+```{r cladelab}
+ggtree(treeinit) + geom_cladelabel(node=22, label="Some random clade", color="red")
+```
+
+You can fill in the clade color with `geom_hilight`:
+
+```{r hilight}
+ggtree(treeinit) + geom_tiplab() + geom_hilight(node=22, fill="gold")
+```
+
+If you want the box to cover all of the text, you will want to provide the `extend` argument to `geom_hilight`:
+
+```{r extend}
+ggtree(treeinit) + geom_tiplab() + geom_hilight(node=22, fill="gold", extend=5)
+```
+
+## Analyzing our partitioned tree
+
+What would the commands here be to visualize our partitioned tree?
+
+```{r partition}
+treepart <- read.iqtree(file.path(PATH,"results/partition.treefile"))
+plotpart <- ggtree(treepart) %<+% tip_df + geom_tiplab(aes(color=group), hjust=-.1) + xlim(0,0.4) + geom_tippoint(aes(color=group)) + geom_text(aes(label=UFboot),hjust=-.3, vjust=.9, size=3) + ggtitle("Partition tree")
+plotpart
+```
+
+Plotting trees side by side is very simple:
+
+```{r sideplot}
+plotpart + plotinit
+```
+
+### Questions:
+
+-   How has the relationship changed?
+
+-   Based on the two analyses, which tree would you go with?
+
+## Topology test (and finding best partition)
+
+Run `03_bestscheme_topotest.sh`:
+
+```         
+sbatch scripts/03_bestscheme_topotest.sh
+```
+
+## Review and modifications
+
+-   We covered repository and data structures for reproducibility and ease of workflow and made use of OOD+containerization
+
+-   We went through running IQTREE2 in different ways to try to address aspects of our data and ggtree-verse to visualize and annotate.
+
+-   Scripts ordered in this numeric scheme can easily slot into a [nextflow](https://docs.ccv.brown.edu/bootcamp-2024/schuedule/day4) workflow for better logging, file provenance and reproducibility.
+
+## For more information:
+
+-   **Data Integration, Manipulation, and Visualization of Phlyogenetic Trees**: <https://yulab-smu.top/treedata-book/>
+-   **IQTree2 reference**: <http://www.iqtree.org/>
+-   **Workshop on Molecular Evolution**: <https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/workshop-molecular-evolution>
+
+## Acknowledgments
+
+-   This workshop is heavily based off of material from the [IQTREE2 workshop in Sydney 2022](http://www.iqtree.org/workshop/sydney2022) and the [JMU2017 ggtree workshop](https://4va.github.io/biodatasci/r-ggtree.html#advanced_tree_annotation).
+
+-   Thank you to Joselynn Wallace, Eric Salomaki and other members of CBC for supporting with this workshop through testing and running through ideas, and also to Paul Hall and George Dang for coordinating the CCV Bootcamp.
