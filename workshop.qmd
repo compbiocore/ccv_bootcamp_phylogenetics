@@ -74,7 +74,7 @@ PATH<-"~/ccv_bootcamp_phylogenetics"
 
 Today we will use IQTREE and ggtree to help us understand the question of where turtles should be placed on the phylogeny relative to crocodiles and birds. Data is already in the repository and is a subset of the dataset used to answer this question in [Chiari et al., 2012](https://doi.org/10.1186/1741-7007-10-65).
 
-![](images/turtle-01.png)
+![](images/turtle.png)
 
 ### Quick view of data
 

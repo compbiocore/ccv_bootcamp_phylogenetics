@@ -5,7 +5,8 @@
 #SBATCH -e logs/partition-%J.err
 #SBATCH -o logs/partition-%J.out
 
-WORKDIR=/users/aguang/ccv_bootcamp_phylogenetics
+#WORKDIR=/users/aguang/ccv_bootcamp_phylogenetics
+WORKDIR=~/ccv_bootcamp_phylogenetics
 
 export SINGULARITY_BINDPATH="${WORKDIR}"
 IMG=${WORKDIR}/metadata/bootcamp.sif
