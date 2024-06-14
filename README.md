@@ -35,6 +35,8 @@ sbatch 03_topo.sh
 
 Similarly, you should be able to get through all code chunks in `workshop.qmd` just fine by spinning up the image and executing code chunks, or doing so on OOD with RStudio on Singularity.
 
+## Resources and Materials
+
 Material is based off of these resources with some modifications:
 
  * [IQTREE workshop](http://www.iqtree.org/workshop/sydney2022)
