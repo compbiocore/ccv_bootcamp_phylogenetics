@@ -370,6 +370,7 @@ sbatch scripts/03_topo.sh
 
 -   **Data Integration, Manipulation, and Visualization of Phlyogenetic Trees**: <https://yulab-smu.top/treedata-book/>
 -   **IQTree2 reference**: <http://www.iqtree.org/>
+-   **Example iqtree and raxml scripts are in `scripts/examples`**
 -   **Workshop on Molecular Evolution**: <https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/workshop-molecular-evolution>
 
 ## Acknowledgments
